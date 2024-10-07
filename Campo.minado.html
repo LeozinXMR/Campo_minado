@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campo Minado</title>
+<style>
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(10, 30px);
+    }
+
+    .cell {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ccc;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+    }
+
+    .cell.revealed {
+        background-color: #eee;
+    }
+</style>
+</head>
+<body>
+<div class="grid" id="grid"></div>
+
+<script>
+    const grid = document.getElementById('grid');
+    const rows = 10;
+    const cols = 10;
+    const mines = 10;
+    let mineLocations = [];
+
+    function createGrid() {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.setAttribute('data-row', i);
+                cell.setAttribute('data-col', j);
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function placeMines() {
+        for (let i = 0; i < mines; i++) {
+            let row, col;
+            do {
+                row = Math.floor(Math.random() * rows);
+                col = Math.floor(Math.random() * cols);
+            } while (mineLocations.some(loc => loc.row === row && loc.col === col));
+            mineLocations.push({row, col});
+        }
+    }
+
+    function revealCell(row, col) {
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        cell.classList.add('revealed');
+    }
+
+    function init() {
+        createGrid();
+        placeMines();
+        grid.addEventListener('click', e => {
+            const row = parseInt(e.target.getAttribute('data-row'));
+            const col = parseInt(e.target.getAttribute('data-col'));
+            if (mineLocations.some(loc => loc.row === row && loc.col === col)) {
+                alert('Game Over!');
+                grid.querySelectorAll('.cell').forEach(cell => {
+                    const cellRow = parseInt(cell.getAttribute('data-row'));
+                    const cellCol = parseInt(cell.getAttribute('data-col'));
+                    revealCell(cellRow, cellCol);
+                });
+            } else {
+                revealCell(row, col);
+            }
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>
